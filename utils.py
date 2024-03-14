@@ -503,6 +503,6 @@ def run_psychobench(args, generator):
         if args.mode in ['analysis', 'auto']:
             try:
                 analysis_results(questionnaire, args)
-            except:
-                print(f'Unable to analysis {args.testing_file}.')
+            except Exception as e:
+                print(f'Unable to analyze {args.testing_file}: {str(e)}')
 

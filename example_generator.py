@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 import os
 import pandas as pd
 from tenacity import (
@@ -21,8 +21,8 @@ def chat(
     delay=1          # Seconds to sleep after each request.
 ):
     time.sleep(delay)
-    
-    response = openai.ChatCompletion.create(
+    client = OpenAI(api_key='dummy', base_url='https://xk1a3a99x8vvam-8000.proxy.runpod.net/v1')
+    response = client.chat.completions.create(
         model=model,
         messages=messages,
         temperature=temperature,
@@ -31,7 +31,7 @@ def chat(
     )
     
     if n == 1:
-        return response['choices'][0]['message']['content']
+        return response.choices[0].message.content
     else:
         return [i['message']['content'] for i in response['choices']]
 
@@ -46,8 +46,9 @@ def completion(
     delay=1         # Seconds to sleep after each request.
 ):
     time.sleep(delay)
-    
-    response = openai.Completion.create(
+    client = OpenAI(api_key='dummy', base_url='https://xk1a3a99x8vvam-8000.proxy.runpod.net/v1')
+   
+    response = client.Completion.create(
         model=model,
         prompt=prompt,
         temperature=temperature,
@@ -79,8 +80,8 @@ def example_generator(questionnaire, args):
     model = args.model
     records_file = args.name_exp if args.name_exp is not None else model
 
-    openai.organization = args.openai_organization
-    openai.api_key = args.openai_key
+    # openai.organization = args.openai_organization
+    # openai.api_key = args.openai_key
 
     # Read the existing CSV file into a pandas DataFrame
     df = pd.read_csv(testing_file)
@@ -128,6 +129,13 @@ def example_generator(questionnaire, args):
                                 result = chat(model, inputs)
                                 previous_records.append({"role": "user", "content": questionnaire["prompt"] + '\n' + questions_string})
                                 previous_records.append({"role": "assistant", "content": result})
+                            elif model in ['mistralai/Mistral-7B-Instruct-v0.1', 'steve-cse/MelloGPT']:
+                                inputs = previous_records + [
+                                    {"role": "user", "content": questionnaire["inner_setting"]+'\n'+questionnaire["prompt"] + '\n' + questions_string}
+                                ]
+                                result = chat(model, inputs)
+                                previous_records.append({"role": "user", "content": questionnaire["prompt"] + '\n' + questions_string})
+                                previous_records.append({"role": "assistant", "content": result})    
                             else:
                                 raise ValueError("The model is not supported or does not exist.")
                         
