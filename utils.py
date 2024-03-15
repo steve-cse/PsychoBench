@@ -93,6 +93,7 @@ def convert_data(questionnaire, testing_file):
     # Check testing_file exist
     if not os.path.exists(testing_file):
         print("Testing file does not exist.")
+        print(testing_file)
         sys.exit(1)
 
     test_data = []
@@ -130,6 +131,7 @@ def convert_data(questionnaire, testing_file):
                             column_data[int(row[start-1])] = int(row[column_index])
                     except ValueError:
                         print(f'Column {column_index + 1} has error.')
+                        print(testing_file)
                         sys.exit(1)
 
                 test_data.append(column_data)
